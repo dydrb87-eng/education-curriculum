@@ -177,6 +177,24 @@
             text-align: left;
             padding-left: 15px;
         }
+        
+        .add-subject-row td {
+            padding: 0;
+        }
+
+        .add-subject-button {
+            width: 100%;
+            background-color: #e9ecef;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #495057;
+            transition: background-color 0.3s;
+        }
+        .add-subject-button:hover {
+            background-color: #d1d9e0;
+        }
 
         .action-buttons {
             text-align: right;
@@ -209,11 +227,68 @@
             display: none;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .modal-content input {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 1em;
+        }
+        
+        .modal-content button {
+             background-color: var(--primary-color);
+             color: white;
+             border: none;
+             padding: 10px 20px;
+             border-radius: 8px;
+             font-size: 1em;
+             font-weight: 600;
+             cursor: pointer;
+        }
+
+        .close-button {
+            color: #aaa;
+            align-self: flex-end;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         @media print {
             body { padding: 0; background-color: #fff; }
             .credit-summary-container { position: static !important; backdrop-filter: none; background-color: #fff !important; }
             .curriculum-table thead th { position: static !important; }
-            .action-buttons, header, .student-info-container, .print-hide {
+            .action-buttons, header, .student-info-container, .print-hide, .add-subject-button {
                 display: none !important;
             }
             .container { box-shadow: none; border-radius: 0; max-width: 100%;}
@@ -268,8 +343,8 @@
                 <thead>
                     <tr>
                         <th style="width: 10%;">구분</th>
-                        <th style="width: 10%;">과목</th>
-                        <th style="width: 35%;">과목 정보</th>
+                        <th style="width: 10%;">과목군</th>
+                        <th style="width: 35%;">과목명</th>
                         <th style="width: 8%;">운영<br>학점</th>
                         <th style="width: 8%;">선택</th>
                     </tr>
@@ -290,6 +365,18 @@
                 </button>
             </section>
         </main>
+    </div>
+    
+    <div id="add-subject-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>과목 추가</h2>
+        <input type="text" id="new-subject-category" placeholder="구분 (e.g., 국어, 수학)">
+        <input type="text" id="new-subject-type" placeholder="과목군 (e.g., 일반, 진로)">
+        <input type="text" id="new-subject-name" placeholder="과목명">
+        <input type="number" id="new-subject-credits" placeholder="운영 학점">
+        <button id="save-subject-button">저장</button>
+      </div>
     </div>
 
     <script>
@@ -365,6 +452,9 @@
 
         const tableBody = document.getElementById('table-body');
         const creditSummary = document.getElementById('credit-summary');
+        const modal = document.getElementById('add-subject-modal');
+        const closeButton = document.querySelector('.close-button');
+        let currentYear, currentSemester;
 
         function setStickyHeaderTop() {
             const summaryContainer = document.querySelector('.credit-summary-container');
@@ -423,12 +513,19 @@
                                 <td>
                                     <input type="checkbox" id="subject-${subject.id}" 
                                            data-group-name="${subject.groupName || ''}" 
-                                           ${subject.required ? 'checked disabled' : ''}>
+                                           ${subject.required ? 'checked' : ''}>
                                 </td>
                             </tr>
                         `;
                     });
                 }
+                html += `
+                    <tr class="add-subject-row">
+                        <td colspan="5">
+                            <button class="add-subject-button" data-year="${year}" data-semester="${semester.replace(' or ', '_')}">+ 과목 추가</button>
+                        </td>
+                    </tr>
+                `;
             });
             tableBody.innerHTML = html;
         }
@@ -494,6 +591,52 @@
                         }
                     }
                     updateCredits();
+                }
+            });
+
+            tableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-subject-button')) {
+                    currentYear = e.target.dataset.year;
+                    currentSemester = e.target.dataset.semester.replace('_', ' or ');
+                    modal.style.display = 'block';
+                }
+            });
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            document.getElementById('save-subject-button').addEventListener('click', () => {
+                const newSubject = {
+                    category: document.getElementById('new-subject-category').value,
+                    type: document.getElementById('new-subject-type').value,
+                    name: document.getElementById('new-subject-name').value,
+                    credits: parseInt(document.getElementById('new-subject-credits').value),
+                    year: parseInt(currentYear),
+                    semester: currentSemester,
+                    required: false,
+                    division: '학생선택',
+                    groupName: ''
+                };
+
+                if (newSubject.name && newSubject.credits > 0) {
+                    curriculumData.subjects.push(newSubject);
+                    modal.style.display = 'none';
+                    // Clear input fields
+                    document.getElementById('new-subject-category').value = '';
+                    document.getElementById('new-subject-type').value = '';
+                    document.getElementById('new-subject-name').value = '';
+                    document.getElementById('new-subject-credits').value = '';
+
+                    renderApp();
+                } else {
+                    alert('과목 정보와 학점을 올바르게 입력해주세요.');
                 }
             });
             
