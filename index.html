@@ -33,7 +33,6 @@
             background-color: var(--container-bg);
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-            /* 'overflow: hidden' was preventing sticky positioning */
         }
 
         header {
@@ -117,6 +116,10 @@
         }
 
         .curriculum-table thead th {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0; 
+            z-index: 990; 
             background-color: #f2f2f2;
             font-weight: 700;
         }
@@ -175,8 +178,11 @@
         
         @media print {
             body { padding: 0; background-color: #fff; }
-            .credit-summary-container { position: static; page-break-after: always; }
-            .action-buttons, header { display: none; }
+            .credit-summary-container { position: static !important; backdrop-filter: none; background-color: #fff !important; }
+            .curriculum-table thead th { position: static !important; }
+            .action-buttons, header, .print-hide {
+                display: none !important;
+            }
             .container { box-shadow: none; border-radius: 0; max-width: 100%;}
             main { padding: 10px; }
         }
@@ -298,6 +304,17 @@
         const tableBody = document.getElementById('table-body');
         const creditSummary = document.getElementById('credit-summary');
 
+        function setStickyHeaderTop() {
+            const summaryContainer = document.querySelector('.credit-summary-container');
+            if (summaryContainer) {
+                const summaryHeight = summaryContainer.offsetHeight;
+                const tableHeaders = document.querySelectorAll('.curriculum-table thead th');
+                tableHeaders.forEach(th => {
+                    th.style.top = `${summaryHeight - 1}px`; 
+                });
+            }
+        }
+
         function renderApp() {
             renderTable();
             renderCreditSummary();
@@ -336,7 +353,7 @@
                     subjectsInGroup.forEach(subject => {
                         subject.id = subjectId++;
                         html += `
-                            <tr>
+                            <tr data-subject-id="${subject.id}">
                                 <td class="subject-category-cell">${subject.category}</td>
                                 <td>${subject.type}</td>
                                 <td class="subject-info-cell">${subject.name}</td>
@@ -418,7 +435,41 @@
                 }
             });
             
-            document.getElementById('print-button').addEventListener('click', () => window.print());
+            document.getElementById('print-button').addEventListener('click', () => {
+                // Hide unselected rows and empty headers
+                const allRows = document.querySelectorAll('#table-body tr');
+                allRows.forEach(row => {
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    if (checkbox && !checkbox.checked) {
+                        row.classList.add('print-hide');
+                    }
+                });
+
+                document.querySelectorAll('.semester-group-header, .choice-rule-header').forEach(headerRow => {
+                    let sibling = headerRow.nextElementSibling;
+                    let hasVisibleSubject = false;
+                    while (sibling && !sibling.classList.contains('semester-group-header') && !sibling.classList.contains('choice-rule-header')) {
+                        if (!sibling.classList.contains('print-hide')) {
+                            hasVisibleSubject = true;
+                            break;
+                        }
+                        sibling = sibling.nextElementSibling;
+                    }
+                    if (!hasVisibleSubject) {
+                        headerRow.classList.add('print-hide');
+                    }
+                });
+                
+                // Set up a one-time event listener for after printing to cleanup
+                const afterPrintHandler = () => {
+                    document.querySelectorAll('.print-hide').forEach(el => el.classList.remove('print-hide'));
+                    window.removeEventListener('afterprint', afterPrintHandler);
+                };
+                window.addEventListener('afterprint', afterPrintHandler);
+                
+                // Trigger print dialog
+                window.print();
+            });
 
             document.getElementById('export-button').addEventListener('click', () => {
                 const selectedSubjects = [];
@@ -448,6 +499,8 @@
         }
 
         renderApp();
+        setStickyHeaderTop();
+        window.addEventListener('resize', setStickyHeaderTop); 
     });
     </script>
 </body>
