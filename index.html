@@ -52,6 +52,35 @@
             padding: 25px;
         }
 
+        .student-info-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .student-info-container h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #495057;
+            text-align: center;
+        }
+        .info-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .info-inputs input {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 1em;
+            flex: 1 1 200px;
+            min-width: 150px;
+        }
+
         .credit-summary-container {
             position: -webkit-sticky; /* For Safari */
             position: sticky;
@@ -176,15 +205,33 @@
         #export-button { background-color: var(--primary-color); }
         .action-button svg { width: 18px; height: 18px; fill: currentColor; }
         
+        #print-header {
+            display: none;
+        }
+
         @media print {
             body { padding: 0; background-color: #fff; }
             .credit-summary-container { position: static !important; backdrop-filter: none; background-color: #fff !important; }
             .curriculum-table thead th { position: static !important; }
-            .action-buttons, header, .print-hide {
+            .action-buttons, header, .student-info-container, .print-hide {
                 display: none !important;
             }
             .container { box-shadow: none; border-radius: 0; max-width: 100%;}
             main { padding: 10px; }
+            
+            #print-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            #print-header h2 {
+                font-size: 1.5em;
+                margin-bottom: 5px;
+            }
+            #print-student-info {
+                font-size: 1.1em;
+                margin-bottom: 20px;
+            }
         }
 
     </style>
@@ -197,8 +244,23 @@
         </header>
 
         <main>
+            <div id="print-header">
+                <h2>필수 학점 충족 현황</h2>
+                <p id="print-student-info"></p>
+            </div>
+
+            <section class="student-info-container">
+                <h3>학생 정보 입력</h3>
+                <div class="info-inputs">
+                    <input type="text" id="student-grade" placeholder="학년">
+                    <input type="text" id="student-class" placeholder="반">
+                    <input type="text" id="student-number" placeholder="번호">
+                    <input type="text" id="student-name" placeholder="이름">
+                </div>
+            </section>
+
             <section class="credit-summary-container">
-                <h2>필수 이수 단위 실시간 현황</h2>
+                <h2>필수 학점 충족 현황</h2>
                 <div id="credit-summary"></div>
             </section>
 
@@ -436,6 +498,14 @@
             });
             
             document.getElementById('print-button').addEventListener('click', () => {
+                const grade = document.getElementById('student-grade').value || '';
+                const s_class = document.getElementById('student-class').value || '';
+                const number = document.getElementById('student-number').value || '';
+                const name = document.getElementById('student-name').value || '';
+                const studentInfo = `${grade}학년 ${s_class}반 ${number}번 ${name}`;
+                
+                document.getElementById('print-student-info').textContent = studentInfo;
+
                 // Hide unselected rows and empty headers
                 const allRows = document.querySelectorAll('#table-body tr');
                 allRows.forEach(row => {
@@ -491,10 +561,23 @@
                     alert('내보내기할 과목을 먼저 선택해주세요.');
                     return;
                 }
+                const grade = document.getElementById('student-grade').value || '';
+                const s_class = document.getElementById('student-class').value || '';
+                const number = document.getElementById('student-number').value || '';
+                const name = document.getElementById('student-name').value || '';
+                const studentInfo = {
+                    '학년': grade,
+                    '반': s_class,
+                    '번호': number,
+                    '이름': name
+                };
+
                 const worksheet = XLSX.utils.json_to_sheet(selectedSubjects);
+                const studentInfoSheet = XLSX.utils.json_to_sheet([studentInfo]);
                 const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, studentInfoSheet, '학생정보');
                 XLSX.utils.book_append_sheet(workbook, worksheet, '선택과목');
-                XLSX.writeFile(workbook, '선택과목_리스트.xlsx');
+                XLSX.writeFile(workbook, `${grade}학년${s_class}반${number}번_${name}_선택과목.xlsx`);
             });
         }
 
