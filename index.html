@@ -393,7 +393,7 @@
                 { "category": "수학", "type": "공통", "name": "공통수학1", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "영어", "type": "공통", "name": "공통영어1", "credits": 4, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "사회", "type": "공통", "name": "통합사회1", "credits": 4, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
-                { "category": "사회", "type": "공통", "name": "한국사1", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
+                { "category": "한국사", "type": "공통", "name": "한국사1", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "과학", "type": "공통", "name": "통합과학1", "credits": 4, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "과학", "type": "공통", "name": "과학탐구실험1", "credits": 1, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "체육", "type": "일반", "name": "체육1", "credits": 2, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
@@ -404,7 +404,7 @@
                 { "category": "수학", "type": "공통", "name": "공통수학2", "credits": 3, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "영어", "type": "공통", "name": "공통영어2", "credits": 4, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "사회", "type": "공통", "name": "통합사회2", "credits": 4, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
-                { "category": "사회", "type": "공통", "name": "한국사2", "credits": 3, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
+                { "category": "한국사", "type": "공통", "name": "한국사2", "credits": 3, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "과학", "type": "공통", "name": "통합과학2", "credits": 4, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "과학", "type": "공통", "name": "과학탐구실험2", "credits": 1, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "체육", "type": "일반", "name": "체육2", "credits": 2, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
@@ -535,7 +535,7 @@
             for(const key in curriculumData.필수이수단위) {
                 html += `
                     <div class="credit-display">
-                        <div class="group-name">${key.replace('기술가정/제2외국어/한문/교양', '기타')}</div>
+                        <div class="group-name">${key.replace('기술가정/제2외국어/한문/교양', '생활/교양')}</div>
                         <div class="credit-value" id="credit-${key.replace(/[/ ]/g, '-')}">0 / ${curriculumData.필수이수단위[key]}</div>
                     </div>
                 `;
@@ -549,7 +549,7 @@
             curriculumData.subjects.forEach(subject => {
                 const checkbox = document.getElementById(`subject-${subject.id}`);
                 if (checkbox && checkbox.checked) {
-                    const categoryKey = getCreditCategoryKey(subject.category);
+                    const categoryKey = getCreditCategoryKey(subject.category, subject.name);
                     selectedCredits[categoryKey] = (selectedCredits[categoryKey] || 0) + subject.credits;
                 }
             });
@@ -565,12 +565,13 @@
             }
         }
         
-        function getCreditCategoryKey(subjectCategory) {
+        function getCreditCategoryKey(subjectCategory, subjectName) {
             if (['기술가정', '제2외국어', '한문', '교양'].includes(subjectCategory)) {
                 return '기술가정/제2외국어/한문/교양';
             }
             if (subjectCategory === '사회') return '통합사회';
-            if (subjectCategory === '과학') return '통합과학';
+            if (subjectCategory === '과학' && subjectName !== '과학탐구실험1' && subjectName !== '과학탐구실험2') return '통합과학';
+            if (subjectName.includes('과학탐구실험')) return '과학탐구실험';
             return subjectCategory;
         }
 
