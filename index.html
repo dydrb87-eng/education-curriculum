@@ -16,6 +16,7 @@
             --border-color: #dee2e6;
             --header-bg: #343a40;
             --header-text: #fff;
+            --not-met-color: #e74c3c;
         }
 
         body {
@@ -81,54 +82,79 @@
             min-width: 150px;
         }
 
-        .credit-summary-container {
-            position: -webkit-sticky; /* For Safari */
+        .summary-section {
+            position: -webkit-sticky;
             position: sticky;
             top: 0;
             z-index: 1000;
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid var(--border-color);
-            margin: 0 -25px 30px -25px; /* Adjust margin to align with main padding */
+            margin: 0 -25px 25px -25px;
             padding-left: 25px;
             padding-right: 25px;
         }
-
-        .credit-summary-container h2 {
-            margin: 0 0 15px 0;
-            font-size: 1.4em;
+        
+        .summary-section > h2 {
+            margin: 0 0 12px 0;
+            font-size: 1.3em;
             color: #495057;
             text-align: center;
         }
 
-        #credit-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
+        .summary-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
         }
 
-        .credit-display {
-            text-align: center;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .credit-display .group-name {
-            font-weight: 600;
-            font-size: 0.95em;
-            color: #6c757d;
-        }
-
-        .credit-display .credit-value {
-            font-weight: 700;
-            font-size: 1.2em;
-            color: var(--primary-color);
+        .summary-box {
+            flex: 1;
+            min-width: 0;
         }
         
-        .credit-display .credit-value.met {
+        .summary-box h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1em;
+            text-align: center;
+            color: #333;
+            font-weight: 600;
+        }
+
+        #credit-summary-table, #selected-subjects-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8em;
+        }
+        #credit-summary-table th, #credit-summary-table td,
+        #selected-subjects-summary th, #selected-subjects-summary td {
+            border: 1px solid var(--border-color);
+            padding: 4px 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        #credit-summary-table thead th,
+        #selected-subjects-summary thead th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+         #credit-summary-table tbody th, 
+         #selected-subjects-summary tbody th {
+            font-weight: 600;
+            background-color: #f9f9f9;
+            text-align: left;
+            padding-left: 8px;
+        }
+
+        #credit-summary-table .met {
             color: var(--secondary-color);
+            font-weight: 600;
+        }
+        #credit-summary-table .not-met {
+            color: var(--not-met-color);
+            font-weight: 600;
         }
 
         .curriculum-table {
@@ -177,6 +203,15 @@
             text-align: left;
             padding-left: 15px;
         }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--not-met-color);
+            cursor: pointer;
+            font-size: 0.9em;
+            padding: 2px;
+        }
         
         .add-subject-row td {
             padding: 0;
@@ -194,6 +229,14 @@
         }
         .add-subject-button:hover {
             background-color: #d1d9e0;
+        }
+
+        .new-subject-form-row input {
+            width: 90%;
+            padding: 4px;
+            font-size: 0.9em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         .action-buttons {
@@ -223,92 +266,21 @@
         #export-button { background-color: var(--primary-color); }
         .action-button svg { width: 18px; height: 18px; fill: currentColor; }
         
-        #print-header {
-            display: none;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .modal-content input {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px 14px;
-            font-size: 1em;
-        }
-        
-        .modal-content button {
-             background-color: var(--primary-color);
-             color: white;
-             border: none;
-             padding: 10px 20px;
-             border-radius: 8px;
-             font-size: 1em;
-             font-weight: 600;
-             cursor: pointer;
-        }
-
-        .close-button {
-            color: #aaa;
-            align-self: flex-end;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+        #print-header { display: none; }
 
         @media print {
             body { padding: 0; background-color: #fff; }
-            .credit-summary-container { position: static !important; backdrop-filter: none; background-color: #fff !important; }
+            .summary-section { position: static !important; backdrop-filter: none; background-color: #fff !important; }
             .curriculum-table thead th { position: static !important; }
-            .action-buttons, header, .student-info-container, .print-hide, .add-subject-button {
+            .action-buttons, header, .student-info-container, .print-hide, .add-subject-button, .delete-btn {
                 display: none !important;
             }
             .container { box-shadow: none; border-radius: 0; max-width: 100%;}
             main { padding: 10px; }
-            
-            #print-header {
-                display: block;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            #print-header h2 {
-                font-size: 1.5em;
-                margin-bottom: 5px;
-            }
-            #print-student-info {
-                font-size: 1.1em;
-                margin-bottom: 20px;
-            }
+            #print-header { display: block; text-align: center; margin-bottom: 20px; }
+            #print-header h2 { font-size: 1.5em; margin-bottom: 5px; }
+            #print-student-info { font-size: 1.1em; margin-bottom: 20px; }
         }
-
     </style>
 </head>
 <body>
@@ -334,14 +306,24 @@
                 </div>
             </section>
 
-            <section class="credit-summary-container">
-                <h2>필수 학점 충족 현황</h2>
-                <div id="credit-summary"></div>
+            <section class="summary-section">
+                <h2>이수 현황 요약</h2>
+                <div class="summary-wrapper">
+                    <div class="summary-box">
+                        <h3>필수 학점 충족 현황</h3>
+                        <div id="credit-summary-container"></div>
+                    </div>
+                    <div class="summary-box">
+                        <h3>선택 과목 요약</h3>
+                        <div id="selected-subjects-summary"></div>
+                    </div>
+                </div>
             </section>
 
             <table id="curriculum-table" class="curriculum-table">
                 <thead>
                     <tr>
+                        <th style="width: 5%;"></th>
                         <th style="width: 10%;">구분</th>
                         <th style="width: 10%;">과목군</th>
                         <th style="width: 35%;">과목명</th>
@@ -350,7 +332,6 @@
                     </tr>
                 </thead>
                 <tbody id="table-body">
-                    <!-- JavaScript will populate this area -->
                 </tbody>
             </table>
 
@@ -366,18 +347,6 @@
             </section>
         </main>
     </div>
-    
-    <div id="add-subject-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>과목 추가</h2>
-        <input type="text" id="new-subject-category" placeholder="구분 (e.g., 국어, 수학)">
-        <input type="text" id="new-subject-type" placeholder="과목군 (e.g., 일반, 진로)">
-        <input type="text" id="new-subject-name" placeholder="과목명">
-        <input type="number" id="new-subject-credits" placeholder="운영 학점">
-        <button id="save-subject-button">저장</button>
-      </div>
-    </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -385,10 +354,9 @@
         const curriculumData = {
             "필수이수단위": {
                 "국어": 8, "수학": 8, "영어": 8, "한국사": 6, "통합사회": 8,
-                "통합과학": 10, "과학탐구실험": 0, "체육": 10, "예술": 10, "기술가정/제2외국어/한문/교양": 16
+                "통합과학": 10, "체육": 10, "예술": 10, "생활/교양": 16
             },
             "subjects": [
-                // 1학년 1학기
                 { "category": "국어", "type": "공통", "name": "공통국어1", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "수학", "type": "공통", "name": "공통수학1", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "영어", "type": "공통", "name": "공통영어1", "credits": 4, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
@@ -398,8 +366,7 @@
                 { "category": "과학", "type": "공통", "name": "과학탐구실험1", "credits": 1, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "체육", "type": "일반", "name": "체육1", "credits": 2, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "예술", "type": "일반", "name": "음악", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
-                { "category": "기술가정/제2외국어/한문/교양", "type": "융합", "name": "생애 설계와 자립", "credits": 2, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
-                // 1학년 2학기
+                { "category": "생활/교양", "type": "융합", "name": "생애 설계와 자립", "credits": 2, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "국어", "type": "공통", "name": "공통국어2", "credits": 3, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "수학", "type": "공통", "name": "공통수학2", "credits": 3, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "영어", "type": "공통", "name": "공통영어2", "credits": 4, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
@@ -409,8 +376,7 @@
                 { "category": "과학", "type": "공통", "name": "과학탐구실험2", "credits": 1, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "체육", "type": "일반", "name": "체육2", "credits": 2, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "예술", "type": "일반", "name": "미술", "credits": 3, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
-                { "category": "기술가정/제2외국어/한문/교양", "type": "일반", "name": "진로와 직업", "credits": 2, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
-                // 2학년 1학기
+                { "category": "생활/교양", "type": "일반", "name": "진로와 직업", "credits": 2, "year": 1, "semester": 2, "required": true, "division": "학교지정" },
                 { "category": "국어", "type": "진로", "name": "주제 탐구 독서", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학교지정(선택)", "groupName": "2-1-택1" },
                 { "category": "수학", "type": "융합", "name": "수학과 문화", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학교지정(선택)", "groupName": "2-1-택1" },
                 { "category": "국어", "type": "일반", "name": "문학", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
@@ -418,27 +384,24 @@
                 { "category": "영어", "type": "일반", "name": "영어I", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
                 { "category": "사회", "type": "일반", "name": "세계사", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
                 { "category": "과학", "type": "일반", "name": "물리학", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
-                { "category": "기술가정/제2외국어/한문/교양", "type": "일반", "name": "일본어I", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
+                { "category": "생활/교양", "type": "일반", "name": "일본어I", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
                 { "category": "체육", "type": "진로", "name": "스포츠 생활1", "credits": 4, "year": 2, "semester": 1, "required": false, "division": "학생선택", "groupName": "2-1-택4" },
-                // 2학년 2학기
                 { "category": "국어", "type": "일반", "name": "화법과 언어", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
                 { "category": "수학", "type": "일반", "name": "미적분I", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
                 { "category": "영어", "type": "일반", "name": "영어II", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
                 { "category": "사회", "type": "일반", "name": "동아시아사", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
                 { "category": "과학", "type": "일반", "name": "화학", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
-                { "category": "기술가정/제2외국어/한문/교양", "type": "일반", "name": "중국어I", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
+                { "category": "생활/교양", "type": "일반", "name": "중국어I", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
                 { "category": "체육", "type": "진로", "name": "스포츠 생활2", "credits": 4, "year": 2, "semester": 2, "required": false, "division": "학생선택", "groupName": "2-2-택4" },
-                // 3학년 1학기
-                { "category": "기술가정/제2외국어/한문/교양", "type": "일반", "name": "한문I", "credits": 4, "year": 3, "semester": 1, "required": true, "division": "학교지정" },
+                { "category": "생활/교양", "type": "일반", "name": "한문I", "credits": 4, "year": 3, "semester": 1, "required": true, "division": "학교지정" },
                 { "category": "예술", "type": "진로", "name": "음악 연주와 창작", "credits": 4, "year": 3, "semester": 1, "required": false, "division": "학생선택", "groupName": "3-1-택1" },
                 { "category": "예술", "type": "진로", "name": "미술 감상과 비평", "credits": 4, "year": 3, "semester": 1, "required": false, "division": "학생선택", "groupName": "3-1-택1" },
-                 // 3학년 1 또는 2학기
                 { "category": "국어", "type": "일반", "name": "독서와 작문", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
                 { "category": "수학", "type": "일반", "name": "확률과 통계", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
                 { "category": "영어", "type": "진로", "name": "영미 문학 읽기", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
                 { "category": "사회", "type": "융합", "name": "여행지리", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
                 { "category": "과학", "type": "융합", "name": "과학의 역사와 문화", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
-                { "category": "교양", "type": "융합", "name": "논술", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
+                { "category": "생활/교양", "type": "융합", "name": "논술", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" },
                 { "category": "체육", "type": "진로", "name": "스포츠 경기 분석", "credits": 4, "year": 3, "semester": "1 or 2", "required": false, "division": "학생선택", "groupName": "3-12-택7" }
             ],
             "rules": {
@@ -450,48 +413,50 @@
             }
         };
 
+        const summaryCategoryOrder = ["국어", "수학", "영어", "한국사", "통합사회", "통합과학", "예술", "체육", "생활/교양"];
+
         const tableBody = document.getElementById('table-body');
-        const creditSummary = document.getElementById('credit-summary');
-        const modal = document.getElementById('add-subject-modal');
-        const closeButton = document.querySelector('.close-button');
-        let currentYear, currentSemester;
+        const creditSummaryContainer = document.getElementById('credit-summary-container');
+        const selectedSubjectsSummaryEl = document.getElementById('selected-subjects-summary');
 
         function setStickyHeaderTop() {
-            const summaryContainer = document.querySelector('.credit-summary-container');
+            const summaryContainer = document.querySelector('.summary-section');
             if (summaryContainer) {
                 const summaryHeight = summaryContainer.offsetHeight;
                 const tableHeaders = document.querySelectorAll('.curriculum-table thead th');
                 tableHeaders.forEach(th => {
-                    th.style.top = `${summaryHeight - 1}px`; 
+                    th.style.top = `${summaryHeight - 1}px`;
                 });
             }
         }
 
         function renderApp() {
             renderTable();
-            renderCreditSummary();
-            updateCredits();
+            renderCreditSummaryTableShell();
+            updateSummaryViews();
             attachEventListeners();
         }
 
         function renderTable() {
             let html = '';
-            let subjectId = 0;
+            let subjectIdCounter = Math.max(...curriculumData.subjects.map(s => s.id || 0)) + 1;
 
             const groupedBySemester = curriculumData.subjects.reduce((acc, subject) => {
                 const key = `${subject.year}-${subject.semester}`;
-                (acc[key] = acc[key] || []).push(subject);
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(subject);
                 return acc;
             }, {});
             
             Object.keys(groupedBySemester).sort().forEach(semesterKey => {
                 const [year, semester] = semesterKey.split('-');
-                html += `<tr class="semester-group-header"><td colspan="5">${year}학년 ${semester.replace('or', '또는')}학기</td></tr>`;
+                html += `<tr class="semester-group-header"><td colspan="6">${year}학년 ${semester.replace('or', '또는')}학기</td></tr>`;
                 
                 const subjectsInSemester = groupedBySemester[semesterKey];
                 const groupedByDivision = subjectsInSemester.reduce((acc, subject) => {
                     const key = subject.groupName || subject.division;
-                     (acc[key] = acc[key] || []).push(subject);
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(subject);
                     return acc;
                 }, {});
 
@@ -499,13 +464,16 @@
                     const subjectsInGroup = groupedByDivision[groupKey];
                     const rule = curriculumData.rules[groupKey];
                     if(rule) {
-                         html += `<tr class="choice-rule-header"><td colspan="5">${rule.label}</td></tr>`;
+                         html += `<tr class="choice-rule-header"><td colspan="6">${rule.label}</td></tr>`;
                     }
 
                     subjectsInGroup.forEach(subject => {
-                        subject.id = subjectId++;
+                        if (subject.id === undefined) subject.id = subjectIdCounter++;
                         html += `
                             <tr data-subject-id="${subject.id}">
+                                <td>
+                                    ${!subject.required ? `<button class="delete-btn" data-subject-id="${subject.id}">삭제</button>` : ''}
+                                </td>
                                 <td class="subject-category-cell">${subject.category}</td>
                                 <td>${subject.type}</td>
                                 <td class="subject-info-cell">${subject.name}</td>
@@ -521,7 +489,7 @@
                 }
                 html += `
                     <tr class="add-subject-row">
-                        <td colspan="5">
+                        <td colspan="6">
                             <button class="add-subject-button" data-year="${year}" data-semester="${semester.replace(' or ', '_')}">+ 과목 추가</button>
                         </td>
                     </tr>
@@ -530,49 +498,123 @@
             tableBody.innerHTML = html;
         }
 
-        function renderCreditSummary() {
-            let html = '';
-            for(const key in curriculumData.필수이수단위) {
-                html += `
-                    <div class="credit-display">
-                        <div class="group-name">${key.replace('기술가정/제2외국어/한문/교양', '생활/교양')}</div>
-                        <div class="credit-value" id="credit-${key.replace(/[/ ]/g, '-')}">0 / ${curriculumData.필수이수단위[key]}</div>
-                    </div>
-                `;
-            }
-            creditSummary.innerHTML = html;
+        function renderCreditSummaryTableShell() {
+            let html = `
+                <table id="credit-summary-table">
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>이수</th>
+                            <th>필수</th>
+                            <th>충족여부</th>
+                        </tr>
+                    </thead>
+                    <tbody id="credit-summary-body"></tbody>
+                </table>
+            `;
+            creditSummaryContainer.innerHTML = html;
+        }
+
+        function updateSummaryViews() {
+            updateCredits();
+            renderSelectedSubjectsSummary();
+            setTimeout(setStickyHeaderTop, 0);
         }
 
         function updateCredits() {
             const selectedCredits = {};
-
             curriculumData.subjects.forEach(subject => {
                 const checkbox = document.getElementById(`subject-${subject.id}`);
                 if (checkbox && checkbox.checked) {
-                    const categoryKey = getCreditCategoryKey(subject.category, subject.name);
+                    const categoryKey = getCreditCategoryKey(subject.category);
                     selectedCredits[categoryKey] = (selectedCredits[categoryKey] || 0) + subject.credits;
                 }
             });
 
-            for(const key in curriculumData.필수이수단위) {
-                const required = curriculumData.필수이수단위[key];
+            const creditSummaryBody = document.getElementById('credit-summary-body');
+            let bodyHtml = '';
+            summaryCategoryOrder.forEach(key => {
+                const required = curriculumData.필수이수단위[key] || 0;
                 const current = selectedCredits[key] || 0;
-                const display = document.getElementById(`credit-${key.replace(/[/ ]/g, '-')}`);
-                if (display) {
-                    display.textContent = `${current} / ${required}`;
-                    display.classList.toggle('met', current >= required);
+                const diff = current - required;
+
+                let statusText = '';
+                let statusClass = '';
+                if (diff >= 0) {
+                    statusText = '충족';
+                    statusClass = 'met';
+                } else {
+                    statusText = `미충족(${diff})`;
+                    statusClass = 'not-met';
                 }
-            }
+                const displayName = key === '통합사회' ? '사회' : (key === '통합과학' ? '과학' : key);
+                bodyHtml += `
+                    <tr>
+                        <th>${displayName}</th>
+                        <td>${current}</td>
+                        <td>${required}</td>
+                        <td class="${statusClass}">${statusText}</td>
+                    </tr>
+                `;
+            });
+            creditSummaryBody.innerHTML = bodyHtml;
         }
         
-        function getCreditCategoryKey(subjectCategory, subjectName) {
-            if (['기술가정', '제2외국어', '한문', '교양'].includes(subjectCategory)) {
-                return '기술가정/제2외국어/한문/교양';
+        function getCreditCategoryKey(subjectCategory) {
+             if (['기술가정', '제2외국어', '한문', '교양', '생활/교양'].includes(subjectCategory)) {
+                return '생활/교양';
             }
             if (subjectCategory === '사회') return '통합사회';
-            if (subjectCategory === '과학' && subjectName !== '과학탐구실험1' && subjectName !== '과학탐구실험2') return '통합과학';
-            if (subjectName.includes('과학탐구실험')) return '과학탐구실험';
+            if (subjectCategory === '과학') return '통합과학';
             return subjectCategory;
+        }
+
+        function renderSelectedSubjectsSummary() {
+            const selectedSubjects = curriculumData.subjects.filter(subject => {
+                const checkbox = document.getElementById(`subject-${subject.id}`);
+                return checkbox && checkbox.checked;
+            });
+
+            const semesters = [...new Set(curriculumData.subjects.map(s => `${s.year}-${s.semester}`))].sort();
+
+            if (selectedSubjects.length === 0) {
+                selectedSubjectsSummaryEl.innerHTML = '<p style="text-align:center; font-size: 0.9em; color: #6c757d;">과목을 선택하면 여기에 표시됩니다.</p>';
+                return;
+            }
+
+            let tableHtml = '<table><thead><tr><th>구분</th>';
+            semesters.forEach(sem => {
+                const [year, semester] = sem.split('-');
+                const label = `${year}-${semester.replace('or', '/')}`;
+                tableHtml += `<th>${label}</th>`;
+            });
+            tableHtml += '</tr></thead><tbody>';
+
+            const groupedByCategory = selectedSubjects.reduce((acc, subject) => {
+                const key = getCreditCategoryKey(subject.category);
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(subject);
+                return acc;
+            }, {});
+
+            summaryCategoryOrder.forEach(categoryKey => {
+                if (!groupedByCategory[categoryKey] || groupedByCategory[categoryKey].length === 0) return;
+
+                const displayName = categoryKey === '통합사회' ? '사회' : (categoryKey === '통합과학' ? '과학' : categoryKey);
+                tableHtml += `<tr><th>${displayName}</th>`;
+                
+                semesters.forEach(sem => {
+                    const subjectsInSemester = (groupedByCategory[categoryKey] || [])
+                                               .filter(s => `${s.year}-${s.semester}` === sem)
+                                               .map(s => s.name)
+                                               .join('<br>');
+                    tableHtml += `<td>${subjectsInSemester}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+
+            tableHtml += '</tbody></table>';
+            selectedSubjectsSummaryEl.innerHTML = tableHtml;
         }
 
         function attachEventListeners() {
@@ -591,142 +633,111 @@
                             }
                         }
                     }
-                    updateCredits();
+                    updateSummaryViews();
                 }
             });
 
             tableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('add-subject-button')) {
-                    currentYear = e.target.dataset.year;
-                    currentSemester = e.target.dataset.semester.replace('_', ' or ');
-                    modal.style.display = 'block';
+                const target = e.target;
+                if (target.classList.contains('add-subject-button')) {
+                    if (tableBody.querySelector('.new-subject-form-row')) return; // Prevent adding multiple new rows
+                    const year = target.dataset.year;
+                    const semester = target.dataset.semester.replace('_', ' or ');
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'new-subject-form-row';
+                    newRow.innerHTML = `
+                        <td><button class="delete-btn cancel-add-btn">삭제</button></td>
+                        <td><input type="text" class="new-subject-input" data-field="category" placeholder="예: 생활/교양"></td>
+                        <td><input type="text" class="new-subject-input" data-field="type" placeholder="예: 일반"></td>
+                        <td><input type="text" class="new-subject-input" data-field="name" placeholder="과목명"></td>
+                        <td><input type="number" class="new-subject-input" data-field="credits" placeholder="학점"></td>
+                        <td><button class="apply-new-subject-btn">적용</button></td>
+                    `;
+                    newRow.dataset.year = year;
+                    newRow.dataset.semester = semester;
+                    target.closest('tr').insertAdjacentElement('beforebegin', newRow);
                 }
-            });
 
-            closeButton.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-
-            window.addEventListener('click', (e) => {
-                if (e.target == modal) {
-                    modal.style.display = 'none';
+                if (target.classList.contains('cancel-add-btn')) {
+                    target.closest('tr').remove();
                 }
-            });
 
-            document.getElementById('save-subject-button').addEventListener('click', () => {
-                const newSubject = {
-                    category: document.getElementById('new-subject-category').value,
-                    type: document.getElementById('new-subject-type').value,
-                    name: document.getElementById('new-subject-name').value,
-                    credits: parseInt(document.getElementById('new-subject-credits').value),
-                    year: parseInt(currentYear),
-                    semester: currentSemester,
-                    required: false,
-                    division: '학생선택',
-                    groupName: ''
-                };
-
-                if (newSubject.name && newSubject.credits > 0) {
+                if (target.classList.contains('apply-new-subject-btn')) {
+                    const row = target.closest('tr');
+                    const newSubject = { required: false, userAdded: true };
+                    row.querySelectorAll('.new-subject-input').forEach(input => {
+                        const field = input.dataset.field;
+                        let value = input.value;
+                        if (field === 'credits') value = parseInt(value, 10) || 0;
+                        newSubject[field] = value;
+                    });
+                    newSubject.year = parseInt(row.dataset.year, 10);
+                    newSubject.semester = row.dataset.semester;
+                    
+                    if (!newSubject.name || !newSubject.category || newSubject.credits <= 0) {
+                        alert('과목명, 구분, 학점을 올바르게 입력해주세요.');
+                        return;
+                    }
+                    
                     curriculumData.subjects.push(newSubject);
-                    modal.style.display = 'none';
-                    // Clear input fields
-                    document.getElementById('new-subject-category').value = '';
-                    document.getElementById('new-subject-type').value = '';
-                    document.getElementById('new-subject-name').value = '';
-                    document.getElementById('new-subject-credits').value = '';
-
                     renderApp();
-                } else {
-                    alert('과목 정보와 학점을 올바르게 입력해주세요.');
+                }
+
+                if (target.classList.contains('delete-btn') && !target.classList.contains('cancel-add-btn')) {
+                    const subjectIdToDelete = parseInt(target.dataset.subjectId, 10);
+                    const subjectIndex = curriculumData.subjects.findIndex(s => s.id === subjectIdToDelete);
+                    if (subjectIndex > -1) {
+                        curriculumData.subjects.splice(subjectIndex, 1);
+                        renderApp();
+                    }
                 }
             });
             
             document.getElementById('print-button').addEventListener('click', () => {
-                const grade = document.getElementById('student-grade').value || '';
-                const s_class = document.getElementById('student-class').value || '';
-                const number = document.getElementById('student-number').value || '';
-                const name = document.getElementById('student-name').value || '';
-                const studentInfo = `${grade}학년 ${s_class}반 ${number}번 ${name}`;
-                
-                document.getElementById('print-student-info').textContent = studentInfo;
-
-                // Hide unselected rows and empty headers
-                const allRows = document.querySelectorAll('#table-body tr');
-                allRows.forEach(row => {
-                    const checkbox = row.querySelector('input[type="checkbox"]');
-                    if (checkbox && !checkbox.checked) {
-                        row.classList.add('print-hide');
-                    }
-                });
-
-                document.querySelectorAll('.semester-group-header, .choice-rule-header').forEach(headerRow => {
-                    let sibling = headerRow.nextElementSibling;
-                    let hasVisibleSubject = false;
-                    while (sibling && !sibling.classList.contains('semester-group-header') && !sibling.classList.contains('choice-rule-header')) {
-                        if (!sibling.classList.contains('print-hide')) {
-                            hasVisibleSubject = true;
-                            break;
-                        }
-                        sibling = sibling.nextElementSibling;
-                    }
-                    if (!hasVisibleSubject) {
-                        headerRow.classList.add('print-hide');
-                    }
-                });
-                
-                // Set up a one-time event listener for after printing to cleanup
-                const afterPrintHandler = () => {
-                    document.querySelectorAll('.print-hide').forEach(el => el.classList.remove('print-hide'));
-                    window.removeEventListener('afterprint', afterPrintHandler);
-                };
-                window.addEventListener('afterprint', afterPrintHandler);
-                
-                // Trigger print dialog
+                 const studentInfo = [
+                    document.getElementById('student-grade').value,
+                    document.getElementById('student-class').value,
+                    document.getElementById('student-number').value,
+                    document.getElementById('student-name').value
+                ].map(v => v || '').join(' ');
+                document.getElementById('print-student-info').textContent = studentInfo.trim() ? studentInfo : '학생 정보 미입력';
                 window.print();
             });
 
             document.getElementById('export-button').addEventListener('click', () => {
-                const selectedSubjects = [];
-                curriculumData.subjects.forEach(subject => {
-                     const checkbox = document.getElementById(`subject-${subject.id}`);
-                     if(checkbox && checkbox.checked) {
-                        selectedSubjects.push({
-                            '구분': subject.division,
-                            '선택 그룹': subject.groupName ? (curriculumData.rules[subject.groupName]?.label || subject.groupName) : '-',
-                            '과목': subject.name,
-                            '학점': subject.credits,
-                            '학년': subject.year,
-                            '학기': subject.semester
-                        });
-                     }
-                });
+                const selectedSubjects = curriculumData.subjects.filter(subject => {
+                    const checkbox = document.getElementById(`subject-${subject.id}`);
+                    return checkbox && checkbox.checked;
+                }).map(subject => ({
+                    '구분': subject.division,
+                    '선택 그룹': subject.groupName ? (curriculumData.rules[subject.groupName]?.label || subject.groupName) : '-',
+                    '과목': subject.name,
+                    '학점': subject.credits,
+                    '학년': subject.year,
+                    '학기': subject.semester
+                }));
 
                 if (selectedSubjects.length === 0) {
                     alert('내보내기할 과목을 먼저 선택해주세요.');
                     return;
                 }
+
                 const grade = document.getElementById('student-grade').value || '';
                 const s_class = document.getElementById('student-class').value || '';
                 const number = document.getElementById('student-number').value || '';
                 const name = document.getElementById('student-name').value || '';
-                const studentInfo = {
-                    '학년': grade,
-                    '반': s_class,
-                    '번호': number,
-                    '이름': name
-                };
+                const studentInfo = { '학년': grade, '반': s_class, '번호': number, '이름': name };
+                const fileName = `${grade}학년${s_class}반${number}번_${name}_선택과목.xlsx` || '선택과목.xlsx';
 
-                const worksheet = XLSX.utils.json_to_sheet(selectedSubjects);
-                const studentInfoSheet = XLSX.utils.json_to_sheet([studentInfo]);
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, studentInfoSheet, '학생정보');
-                XLSX.utils.book_append_sheet(workbook, worksheet, '선택과목');
-                XLSX.writeFile(workbook, `${grade}학년${s_class}반${number}번_${name}_선택과목.xlsx`);
+                XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet([studentInfo]), '학생정보');
+                XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(selectedSubjects), '선택과목');
+                XLSX.writeFile(workbook, fileName);
             });
         }
 
         renderApp();
-        setStickyHeaderTop();
+        setTimeout(setStickyHeaderTop, 0);
         window.addEventListener('resize', setStickyHeaderTop); 
     });
     </script>
