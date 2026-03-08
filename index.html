@@ -112,11 +112,11 @@
         }
 
         .summary-box:first-child { 
-            flex: 0 1 auto; /* Let it shrink to content */
+            flex: 0 0 auto;
             min-width: 260px; 
         }
         .summary-box:last-child { 
-            flex: 1 1 0; /* Let it take remaining space */
+            flex: 1 1 0;
             min-width: 0;
         }
         
@@ -145,7 +145,7 @@
             vertical-align: middle;
         }
         #selected-subjects-summary table { table-layout: fixed; }
-        #selected-subjects-summary td { padding: 1px 2px; }
+        #selected-subjects-summary td { padding: 1px 2px; vertical-align: top;}
 
         #credit-summary-table thead th,
         #selected-subjects-summary thead th {
@@ -157,10 +157,10 @@
          #selected-subjects-summary tbody th {
             font-weight: 600;
             background-color: #f9f9f9;
+            text-align: left;
         }
         
         #credit-summary-table tbody th {
-            text-align: left;
             padding-left: 4px;
             padding-right: 4px;
         }
@@ -172,6 +172,7 @@
         #selected-subjects-summary th:first-child,
         #selected-subjects-summary tbody th {
             width: 55px;
+            padding-left: 4px;
         }
 
         #credit-summary-table .met {
@@ -614,10 +615,23 @@
             return subjectCategory;
         }
 
-        function createFitTextSvg(text) {
+        let textMeasurerCanvas;
+        function measureTextWidth(text, font) {
+            if (!textMeasurerCanvas) {
+                textMeasurerCanvas = document.createElement("canvas");
+            }
+            const context = textMeasurerCanvas.getContext("2d");
+            context.font = font;
+            return context.measureText(text).width;
+        }
+
+        function createShrinkToFitSvg(text, textWidth, cellWidth) {
             const safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return `<svg width="100%" height="14" viewBox="0 0 100 14" preserveAspectRatio="xMinYMid meet" style="display: block; margin-bottom: 1px;">
-                        <text x="0" y="11" font-family="Pretendard, sans-serif" font-size="11px" textLength="100" lengthAdjust="spacingAndGlyphs">${safeText}</text>
+            const scale = cellWidth / textWidth;
+            const fontSize = 12; // Base font size
+            // We apply a transform to the text element itself. This is more reliable.
+            return `<svg width="100%" height="15" style="display: block; margin: auto;">
+                        <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="inherit" font-size="${fontSize}px" style="transform: scaleX(${scale}); transform-origin: center;">${safeText}</text>
                     </svg>`;
         }
 
@@ -634,13 +648,22 @@
                 return;
             }
 
-            let tableHtml = '<table><thead><tr><th>구분</th>';
+            let tableShellHtml = '<table><thead><tr><th>구분</th>';
             semesters.forEach(sem => {
                 const [year, semester] = sem.split('-');
                 const label = `${year}-${semester.replace('or', '/')}`;
-                tableHtml += `<th>${label}</th>`;
+                tableShellHtml += `<th>${label}</th>`;
             });
-            tableHtml += '</tr></thead><tbody>';
+            tableShellHtml += '</tr></thead><tbody></tbody></table>';
+            selectedSubjectsSummaryEl.innerHTML = tableShellHtml;
+
+            const summaryTable = selectedSubjectsSummaryEl.querySelector('table');
+            const firstDataCell = summaryTable.querySelector('th:nth-child(2)');
+            if (!firstDataCell) return;
+
+            const cellStyle = window.getComputedStyle(firstDataCell);
+            const cellContentWidth = firstDataCell.clientWidth - parseFloat(cellStyle.paddingLeft) - parseFloat(cellStyle.paddingRight);
+            const fontForMeasurement = `${parseFloat(cellStyle.fontSize)}px ${cellStyle.fontFamily.split(',')[0]}`;
 
             const groupedByCategory = selectedSubjects.reduce((acc, subject) => {
                 const key = getCreditCategoryKey(subject.category);
@@ -649,25 +672,36 @@
                 return acc;
             }, {});
 
+            let tbodyHtml = '';
             summaryCategoryOrder.forEach(categoryKey => {
                 if (!groupedByCategory[categoryKey] || groupedByCategory[categoryKey].length === 0) return;
 
                 const displayName = categoryKey === '통합사회' ? '사회' : (categoryKey === '통합과학' ? '과학' : categoryKey);
-                tableHtml += `<tr><th>${displayName}</th>`;
+                tbodyHtml += `<tr><th>${displayName}</th>`;
                 
                 semesters.forEach(sem => {
-                    const subjectsInSemester = (groupedByCategory[categoryKey] || [])
-                                               .filter(s => `${s.year}-${s.semester}` === sem)
-                                               .map(s => createFitTextSvg(s.name))
-                                               .join('');
-                    tableHtml += `<td>${subjectsInSemester || ''}</td>`;
+                    const subjectsInSemester = (groupedByCategory[categoryKey] || []).filter(s => `${s.year}-${s.semester}` === sem);
+                    const cellContent = subjectsInSemester.map(s => {
+                        const textWidth = measureTextWidth(s.name, fontForMeasurement);
+                        if (textWidth > cellContentWidth) {
+                             // This is the new, corrected shrink-only SVG function.
+                            const scale = cellContentWidth / textWidth;
+                            const safeText = s.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                            return `<svg width="100%" height="15" viewbox="0 0 ${cellContentWidth} 15" preserveAspectRatio="none" style="display: block;">
+                                        <text x="${cellContentWidth/2}" y="7.5" text-anchor="middle" dominant-baseline="middle" font-size="12px" style="transform: scaleX(${scale*0.98}); transform-origin: center;">${safeText}</text>
+                                    </svg>`;
+                        } else {
+                            return `<div style="text-align: center; height: 15px; line-height: 15px;">${s.name}</div>`;
+                        }
+                    }).join('');
+                    tbodyHtml += `<td>${cellContent}</td>`;
                 });
-                tableHtml += '</tr>';
+                tbodyHtml += '</tr>';
             });
 
-            tableHtml += '</tbody></table>';
-            selectedSubjectsSummaryEl.innerHTML = tableHtml;
+            summaryTable.querySelector('tbody').innerHTML = tbodyHtml;
         }
+
 
         function attachEventListeners() {
             tableBody.addEventListener('change', (e) => {
@@ -862,7 +896,10 @@
 
         renderApp();
         setTimeout(setStickyHeaderTop, 0);
-        window.addEventListener('resize', setStickyHeaderTop); 
+        window.addEventListener('resize', () => {
+            updateSummaryViews(); // Re-render on resize to adjust text scaling
+            setStickyHeaderTop();
+        }); 
     });
     </script>
 </body>
