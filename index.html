@@ -852,7 +852,7 @@
                                 renderApp();
                             }
                         } else { // For pre-defined subjects, just uncheck them
-                            const checkbox = document.getElementById(`subject-${subjectId}`);
+                            const checkbox = document.getElementById(`subject-${subject.id}`);
                             if (checkbox) {
                                 checkbox.checked = false;
                                 subject.checked = false;
