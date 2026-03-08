@@ -81,6 +81,13 @@
             flex: 1 1 200px;
             min-width: 150px;
         }
+        .excel-upload-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        #excel-upload-button {
+            background-color: #3498db;
+        }
 
         .summary-section {
             position: -webkit-sticky;
@@ -89,18 +96,13 @@
             z-index: 1000;
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            padding: 15px;
+            padding: 10px 25px 15px 25px;
             border-bottom: 1px solid var(--border-color);
             margin: 0 -25px 25px -25px;
-            padding-left: 25px;
-            padding-right: 25px;
         }
         
         .summary-section > h2 {
-            margin: 0 0 12px 0;
-            font-size: 1.3em;
-            color: #495057;
-            text-align: center;
+           display: none;
         }
 
         .summary-wrapper {
@@ -109,10 +111,8 @@
             align-items: flex-start;
         }
 
-        .summary-box {
-            flex: 1;
-            min-width: 0;
-        }
+        .summary-box:first-child { flex: 0.8; min-width: 280px; }
+        .summary-box:last-child { flex: 1.2; }
         
         .summary-box h3 {
             margin-top: 0;
@@ -122,6 +122,9 @@
             color: #333;
             font-weight: 600;
         }
+
+        #credit-summary-container { overflow-x: auto; }
+        #selected-subjects-summary { overflow-x: auto; }
 
         #credit-summary-table, #selected-subjects-summary table {
             width: 100%;
@@ -135,17 +138,32 @@
             text-align: center;
             vertical-align: middle;
         }
+
         #credit-summary-table thead th,
         #selected-subjects-summary thead th {
             background-color: #f2f2f2;
             font-weight: 600;
         }
+
          #credit-summary-table tbody th, 
          #selected-subjects-summary tbody th {
             font-weight: 600;
             background-color: #f9f9f9;
             text-align: left;
             padding-left: 8px;
+        }
+
+        #credit-summary-table tbody th {
+            text-align: left;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        #credit-summary-table td:last-child {
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+        #selected-subjects-summary tbody th {
+            width: 60px;
         }
 
         #credit-summary-table .met {
@@ -165,7 +183,7 @@
 
         .curriculum-table th, .curriculum-table td {
             border: 1px solid var(--border-color);
-            padding: 10px 8px;
+            padding: 5px 8px;
             text-align: center;
             vertical-align: middle;
         }
@@ -204,13 +222,18 @@
             padding-left: 15px;
         }
 
-        .delete-btn {
+        .delete-x-btn {
             background: none;
             border: none;
             color: var(--not-met-color);
             cursor: pointer;
-            font-size: 0.9em;
-            padding: 2px;
+            font-size: 1.4em;
+            font-weight: bold;
+            padding: 0;
+            line-height: 1;
+        }
+        .delete-x-btn:hover {
+            transform: scale(1.1);
         }
         
         .add-subject-row td {
@@ -232,11 +255,15 @@
         }
 
         .new-subject-form-row input {
-            width: 90%;
-            padding: 4px;
+            width: 95%;
+            box-sizing: border-box;
+            padding: 6px;
             font-size: 0.9em;
             border: 1px solid #ccc;
             border-radius: 4px;
+        }
+        .apply-new-subject-btn {
+             background-color: var(--primary-color) !important;
         }
 
         .action-buttons {
@@ -272,7 +299,7 @@
             body { padding: 0; background-color: #fff; }
             .summary-section { position: static !important; backdrop-filter: none; background-color: #fff !important; }
             .curriculum-table thead th { position: static !important; }
-            .action-buttons, header, .student-info-container, .print-hide, .add-subject-button, .delete-btn {
+            .action-buttons, header, .student-info-container, .print-hide, .add-subject-button, .delete-x-btn {
                 display: none !important;
             }
             .container { box-shadow: none; border-radius: 0; max-width: 100%;}
@@ -304,6 +331,13 @@
                     <input type="text" id="student-number" placeholder="번호">
                     <input type="text" id="student-name" placeholder="이름">
                 </div>
+                <div class="excel-upload-container">
+                    <input type="file" id="excel-upload-input" accept=".xlsx, .xls" style="display: none;">
+                    <button id="excel-upload-button" class="action-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="18px" height="18px"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                        엑셀 업로드
+                    </button>
+                </div>
             </section>
 
             <section class="summary-section">
@@ -324,10 +358,10 @@
                 <thead>
                     <tr>
                         <th style="width: 5%;"></th>
-                        <th style="width: 10%;">구분</th>
-                        <th style="width: 10%;">과목군</th>
-                        <th style="width: 35%;">과목명</th>
-                        <th style="width: 8%;">운영<br>학점</th>
+                        <th style="width: 15%;">구분</th>
+                        <th style="width: 10%;">유형</th>
+                        <th style="width: 30%;">과목명</th>
+                        <th style="width: 10%;">운영학점</th>
                         <th style="width: 8%;">선택</th>
                     </tr>
                 </thead>
@@ -354,7 +388,7 @@
         const curriculumData = {
             "필수이수단위": {
                 "국어": 8, "수학": 8, "영어": 8, "한국사": 6, "통합사회": 8,
-                "통합과학": 10, "체육": 10, "예술": 10, "생활/교양": 16
+                "통합과학": 12, "체육": 10, "예술": 10, "생활/교양": 16
             },
             "subjects": [
                 { "category": "국어", "type": "공통", "name": "공통국어1", "credits": 3, "year": 1, "semester": 1, "required": true, "division": "학교지정" },
@@ -418,6 +452,8 @@
         const tableBody = document.getElementById('table-body');
         const creditSummaryContainer = document.getElementById('credit-summary-container');
         const selectedSubjectsSummaryEl = document.getElementById('selected-subjects-summary');
+        const excelUploadButton = document.getElementById('excel-upload-button');
+        const excelUploadInput = document.getElementById('excel-upload-input');
 
         function setStickyHeaderTop() {
             const summaryContainer = document.querySelector('.summary-section');
@@ -472,7 +508,7 @@
                         html += `
                             <tr data-subject-id="${subject.id}">
                                 <td>
-                                    ${!subject.required ? `<button class="delete-btn" data-subject-id="${subject.id}">삭제</button>` : ''}
+                                    ${!subject.required ? `<button class="delete-x-btn" data-subject-id="${subject.id}">&times;</button>` : ''}
                                 </td>
                                 <td class="subject-category-cell">${subject.category}</td>
                                 <td>${subject.type}</td>
@@ -481,7 +517,7 @@
                                 <td>
                                     <input type="checkbox" id="subject-${subject.id}" 
                                            data-group-name="${subject.groupName || ''}" 
-                                           ${subject.required ? 'checked' : ''}>
+                                           ${subject.required ? 'checked disabled' : (subject.checked ? 'checked' : '')}>
                                 </td>
                             </tr>
                         `;
@@ -534,7 +570,8 @@
             const creditSummaryBody = document.getElementById('credit-summary-body');
             let bodyHtml = '';
             summaryCategoryOrder.forEach(key => {
-                const required = curriculumData.필수이수단위[key] || 0;
+                if (!curriculumData.필수이수단위.hasOwnProperty(key)) return;
+                const required = curriculumData.필수이수단위[key];
                 const current = selectedCredits[key] || 0;
                 const diff = current - required;
 
@@ -578,7 +615,7 @@
             const semesters = [...new Set(curriculumData.subjects.map(s => `${s.year}-${s.semester}`))].sort();
 
             if (selectedSubjects.length === 0) {
-                selectedSubjectsSummaryEl.innerHTML = '<p style="text-align:center; font-size: 0.9em; color: #6c757d;">과목을 선택하면 여기에 표시됩니다.</p>';
+                selectedSubjectsSummaryEl.innerHTML = '<p style="text-align:center; font-size: 0.9em; color: #6c757d;">과목을 선택하거나 엑셀을 업로드하세요.</p>';
                 return;
             }
 
@@ -620,6 +657,12 @@
         function attachEventListeners() {
             tableBody.addEventListener('change', (e) => {
                 if (e.target.type === 'checkbox') {
+                    const subjectId = parseInt(e.target.id.split('-')[1], 10);
+                    const subject = curriculumData.subjects.find(s => s.id === subjectId);
+                    if (subject) {
+                        subject.checked = e.target.checked;
+                    }
+
                     const groupName = e.target.dataset.groupName;
                     if(groupName) {
                         const rule = curriculumData.rules[groupName];
@@ -630,6 +673,7 @@
                             if (checkedCount > rule.count) {
                                 alert(`${rule.label} 그룹에서는 최대 ${rule.count}개까지만 선택할 수 있습니다.`);
                                 e.target.checked = false;
+                                if(subject) subject.checked = false;
                             }
                         }
                     }
@@ -639,19 +683,20 @@
 
             tableBody.addEventListener('click', (e) => {
                 const target = e.target;
+
                 if (target.classList.contains('add-subject-button')) {
-                    if (tableBody.querySelector('.new-subject-form-row')) return; // Prevent adding multiple new rows
+                    if (tableBody.querySelector('.new-subject-form-row')) return;
                     const year = target.dataset.year;
                     const semester = target.dataset.semester.replace('_', ' or ');
                     const newRow = document.createElement('tr');
                     newRow.className = 'new-subject-form-row';
                     newRow.innerHTML = `
-                        <td><button class="delete-btn cancel-add-btn">삭제</button></td>
-                        <td><input type="text" class="new-subject-input" data-field="category" placeholder="예: 생활/교양"></td>
-                        <td><input type="text" class="new-subject-input" data-field="type" placeholder="예: 일반"></td>
+                        <td><button class="delete-x-btn cancel-add-btn">&times;</button></td>
+                        <td><input type="text" class="new-subject-input" data-field="category" placeholder="구분"></td>
+                        <td><input type="text" class="new-subject-input" data-field="type" placeholder="유형"></td>
                         <td><input type="text" class="new-subject-input" data-field="name" placeholder="과목명"></td>
                         <td><input type="number" class="new-subject-input" data-field="credits" placeholder="학점"></td>
-                        <td><button class="apply-new-subject-btn">적용</button></td>
+                        <td><button class="apply-new-subject-btn action-button">적용</button></td>
                     `;
                     newRow.dataset.year = year;
                     newRow.dataset.semester = semester;
@@ -664,7 +709,7 @@
 
                 if (target.classList.contains('apply-new-subject-btn')) {
                     const row = target.closest('tr');
-                    const newSubject = { required: false, userAdded: true };
+                    const newSubject = { required: false, userAdded: true, checked: true };
                     row.querySelectorAll('.new-subject-input').forEach(input => {
                         const field = input.dataset.field;
                         let value = input.value;
@@ -675,7 +720,7 @@
                     newSubject.semester = row.dataset.semester;
                     
                     if (!newSubject.name || !newSubject.category || newSubject.credits <= 0) {
-                        alert('과목명, 구분, 학점을 올바르게 입력해주세요.');
+                        alert('과목명, 구분, 유형, 학점을 올바르게 입력해주세요.');
                         return;
                     }
                     
@@ -683,14 +728,77 @@
                     renderApp();
                 }
 
-                if (target.classList.contains('delete-btn') && !target.classList.contains('cancel-add-btn')) {
-                    const subjectIdToDelete = parseInt(target.dataset.subjectId, 10);
-                    const subjectIndex = curriculumData.subjects.findIndex(s => s.id === subjectIdToDelete);
-                    if (subjectIndex > -1) {
-                        curriculumData.subjects.splice(subjectIndex, 1);
-                        renderApp();
+                if (target.classList.contains('delete-x-btn') && !target.classList.contains('cancel-add-btn')) {
+                    const subjectId = parseInt(target.dataset.subjectId, 10);
+                    const subject = curriculumData.subjects.find(s => s.id === subjectId);
+                    if (subject) {
+                         if (subject.userAdded) {
+                            const subjectIndex = curriculumData.subjects.findIndex(s => s.id === subjectId);
+                            if (subjectIndex > -1) {
+                                curriculumData.subjects.splice(subjectIndex, 1);
+                                renderApp();
+                            }
+                        } else {
+                            const checkbox = document.getElementById(`subject-${subjectId}`);
+                            if (checkbox) {
+                                checkbox.checked = false;
+                                subject.checked = false;
+                                updateSummaryViews();
+                            }
+                        }
                     }
                 }
+            });
+
+            excelUploadButton.addEventListener('click', () => {
+                excelUploadInput.click();
+            });
+
+            excelUploadInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                        if (jsonData.length === 0) {
+                            alert('엑셀 파일에 데이터가 없거나 형식이 올바르지 않습니다.');
+                            return;
+                        }
+
+                        const firstRow = jsonData[0];
+                        const subjectColumnKey = Object.keys(firstRow).find(key => key.includes('과목명'));
+
+                        if (!subjectColumnKey) {
+                            alert('엑셀 파일에서 \'과목명\' 열을 찾을 수 없습니다.');
+                            return;
+                        }
+
+                        const uploadedSubjects = new Set(jsonData.map(row => row[subjectColumnKey]).filter(Boolean));
+                        
+                        curriculumData.subjects.forEach(subject => {
+                           if (!subject.required) {
+                                subject.checked = uploadedSubjects.has(subject.name);
+                            }
+                        });
+
+                        renderApp();
+                        alert('엑셀 파일의 이수 과목을 성공적으로 반영했습니다.');
+
+                    } catch (error) {
+                        console.error('Error processing Excel file:', error);
+                        alert('엑셀 파일을 처리하는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.');
+                    } finally {
+                        excelUploadInput.value = '';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
             });
             
             document.getElementById('print-button').addEventListener('click', () => {
@@ -711,7 +819,8 @@
                 }).map(subject => ({
                     '구분': subject.division,
                     '선택 그룹': subject.groupName ? (curriculumData.rules[subject.groupName]?.label || subject.groupName) : '-',
-                    '과목': subject.name,
+                    '유형': subject.type,
+                    '과목명': subject.name,
                     '학점': subject.credits,
                     '학년': subject.year,
                     '학기': subject.semester
