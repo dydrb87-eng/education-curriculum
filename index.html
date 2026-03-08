@@ -111,8 +111,14 @@
             align-items: flex-start;
         }
 
-        .summary-box:first-child { flex: 0.8; min-width: 280px; }
-        .summary-box:last-child { flex: 1.2; }
+        .summary-box:first-child { 
+            flex: 0 1 auto; /* Let it shrink to content */
+            min-width: 260px; 
+        }
+        .summary-box:last-child { 
+            flex: 1 1 0; /* Let it take remaining space */
+            min-width: 0;
+        }
         
         .summary-box h3 {
             margin-top: 0;
@@ -138,6 +144,8 @@
             text-align: center;
             vertical-align: middle;
         }
+        #selected-subjects-summary table { table-layout: fixed; }
+        #selected-subjects-summary td { padding: 1px 2px; }
 
         #credit-summary-table thead th,
         #selected-subjects-summary thead th {
@@ -149,10 +157,8 @@
          #selected-subjects-summary tbody th {
             font-weight: 600;
             background-color: #f9f9f9;
-            text-align: left;
-            padding-left: 8px;
         }
-
+        
         #credit-summary-table tbody th {
             text-align: left;
             padding-left: 4px;
@@ -162,8 +168,10 @@
             padding-left: 2px;
             padding-right: 2px;
         }
+
+        #selected-subjects-summary th:first-child,
         #selected-subjects-summary tbody th {
-            width: 60px;
+            width: 55px;
         }
 
         #credit-summary-table .met {
@@ -606,6 +614,13 @@
             return subjectCategory;
         }
 
+        function createFitTextSvg(text) {
+            const safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return `<svg width="100%" height="14" viewBox="0 0 100 14" preserveAspectRatio="xMinYMid meet" style="display: block; margin-bottom: 1px;">
+                        <text x="0" y="11" font-family="Pretendard, sans-serif" font-size="11px" textLength="100" lengthAdjust="spacingAndGlyphs">${safeText}</text>
+                    </svg>`;
+        }
+
         function renderSelectedSubjectsSummary() {
             const selectedSubjects = curriculumData.subjects.filter(subject => {
                 const checkbox = document.getElementById(`subject-${subject.id}`);
@@ -643,9 +658,9 @@
                 semesters.forEach(sem => {
                     const subjectsInSemester = (groupedByCategory[categoryKey] || [])
                                                .filter(s => `${s.year}-${s.semester}` === sem)
-                                               .map(s => s.name)
-                                               .join('<br>');
-                    tableHtml += `<td>${subjectsInSemester}</td>`;
+                                               .map(s => createFitTextSvg(s.name))
+                                               .join('');
+                    tableHtml += `<td>${subjectsInSemester || ''}</td>`;
                 });
                 tableHtml += '</tr>';
             });
