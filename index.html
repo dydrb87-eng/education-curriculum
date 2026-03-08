@@ -739,7 +739,7 @@
             summaryCategoryOrder.forEach(categoryKey => {
                 if (!groupedByCategory[categoryKey] || groupedByCategory[categoryKey].length === 0) return;
 
-                const displayName = key === '통합사회' ? '사회' : (key === '통합과학' ? '과학' : key);
+                const displayName = categoryKey === '통합사회' ? '사회' : (categoryKey === '통합과학' ? '과학' : categoryKey);
                 tbodyHtml += `<tr><th>${displayName}</th>`;
                 
                 allSemesters.forEach(sem => {
